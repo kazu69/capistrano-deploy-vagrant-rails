@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+#^syntax detection
+
+site 'http://community.opscode.com/api/v1'
+
+cookbook 'apt'
+cookbook 'build-essential'
+cookbook 'ruby_build'
+cookbook 'rbenv', git: 'git@github.com:fnichol/chef-rbenv.git'
+cookbook 'git'
+cookbook 'mysql'
+cookbook 'database'
+cookbook 'nodejs'
