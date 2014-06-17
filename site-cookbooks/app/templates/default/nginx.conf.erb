@@ -1,0 +1,43 @@
+user www-data;
+worker_processes <%= node['nginx']['worker_processes'] %>;
+
+error_log <%= node['nginx']['log_dir'] %>/error.log;
+pid <%= node['nginx']['pid'] %>;
+
+events {
+    worker_connections <%= node['nginx']['worker_connections'] %>;
+}
+
+http {
+
+    upstream unicorn {
+      server unix:/tmp/unicorn.sock fail_timeout=0;
+    }
+
+    include /etc/nginx/mime.types;
+    access_log <%= node['nginx']['log_dir'] %>/access.log;
+
+    default_type application/octet-stream;
+
+    server {
+        listen <%= node['app']['listen_port'] %>;
+
+        root <%= node['app']['app_path'] %>;
+
+        server_name localhost;
+
+        # error page
+        error_page 500 502 503 504 /500.html;
+
+        client_max_body_size 4G;
+        keepalive_timeout 10;
+
+        # $uri に相当するファイルがなければ、 @unicorn の設定へ
+        try_files $uri @unicorn;
+
+        location @unicorn {
+            proxy_pass http://unicorn;
+            proxy_set_header Host $http_host;
+        }
+    }
+}
